@@ -2,6 +2,7 @@ defmodule WhirlWeb.UserSessionControllerTest do
   use WhirlWeb.ConnCase, async: true
 
   import Whirl.AccountsFixtures
+
   alias Whirl.Accounts
 
   setup do
@@ -17,7 +18,7 @@ defmodule WhirlWeb.UserSessionControllerTest do
           "user" => %{"email" => user.email, "password" => valid_user_password()}
         })
 
-      assert get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> assert()
       assert redirected_to(conn) == ~p"/"
 
       # Now do a logged in request and assert on the menu
@@ -81,7 +82,7 @@ defmodule WhirlWeb.UserSessionControllerTest do
           "user" => %{"token" => token}
         })
 
-      assert get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> assert()
       assert redirected_to(conn) == ~p"/"
 
       # Now do a logged in request and assert on the menu
@@ -102,7 +103,7 @@ defmodule WhirlWeb.UserSessionControllerTest do
           "_action" => "confirmed"
         })
 
-      assert get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> assert()
       assert redirected_to(conn) == ~p"/"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "User confirmed successfully."
 
@@ -133,14 +134,14 @@ defmodule WhirlWeb.UserSessionControllerTest do
     test "logs the user out", %{conn: conn, user: user} do
       conn = conn |> log_in_user(user) |> delete(~p"/users/log-out")
       assert redirected_to(conn) == ~p"/"
-      refute get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> refute()
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
 
     test "succeeds even if the user is not logged in", %{conn: conn} do
       conn = delete(conn, ~p"/users/log-out")
       assert redirected_to(conn) == ~p"/"
-      refute get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> refute()
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
   end

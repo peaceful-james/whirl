@@ -1,8 +1,9 @@
 defmodule WhirlWeb.UserAuth do
+  @moduledoc false
   use WhirlWeb, :verified_routes
 
-  import Plug.Conn
   import Phoenix.Controller
+  import Plug.Conn
 
   alias Whirl.Accounts
   alias Whirl.Accounts.Scope
@@ -227,7 +228,7 @@ defmodule WhirlWeb.UserAuth do
   """
   def disconnect_sessions(tokens) do
     Enum.each(tokens, fn %{token: token} ->
-      WhirlWeb.Endpoint.broadcast(user_session_topic(token), "disconnect", %{})
+      token |> user_session_topic() |> WhirlWeb.Endpoint.broadcast("disconnect", %{})
     end)
   end
 

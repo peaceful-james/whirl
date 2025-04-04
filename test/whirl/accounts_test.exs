@@ -1,14 +1,15 @@
 defmodule Whirl.AccountsTest do
   use Whirl.DataCase
 
-  alias Whirl.Accounts
-
   import Whirl.AccountsFixtures
-  alias Whirl.Accounts.{User, UserToken}
+
+  alias Whirl.Accounts
+  alias Whirl.Accounts.User
+  alias Whirl.Accounts.UserToken
 
   describe "get_user_by_email/1" do
     test "does not return the user if the email does not exist" do
-      refute Accounts.get_user_by_email("unknown@example.com")
+      "unknown@example.com" |> Accounts.get_user_by_email() |> refute()
     end
 
     test "returns the user if the email exists" do
@@ -19,16 +20,16 @@ defmodule Whirl.AccountsTest do
 
   describe "get_user_by_email_and_password/2" do
     test "does not return the user if the email does not exist" do
-      refute Accounts.get_user_by_email_and_password("unknown@example.com", "hello world!")
+      "unknown@example.com" |> Accounts.get_user_by_email_and_password("hello world!") |> refute()
     end
 
     test "does not return the user if the password is not valid" do
-      user = user_fixture() |> set_password()
-      refute Accounts.get_user_by_email_and_password(user.email, "invalid")
+      user = set_password(user_fixture())
+      user.email |> Accounts.get_user_by_email_and_password("invalid") |> refute()
     end
 
     test "returns the user if the email and password are valid" do
-      %{id: id} = user = user_fixture() |> set_password()
+      %{id: id} = user = set_password(user_fixture())
 
       assert %User{id: ^id} =
                Accounts.get_user_by_email_and_password(user.email, valid_user_password())
@@ -79,11 +80,11 @@ defmodule Whirl.AccountsTest do
 
     test "registers users without password" do
       email = unique_user_email()
-      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+      {:ok, user} = email: email |> valid_user_attributes() |> Accounts.register_user()
       assert user.email == email
-      assert is_nil(user.hashed_password)
-      assert is_nil(user.confirmed_at)
-      assert is_nil(user.password)
+      user.hashed_password |> is_nil() |> assert()
+      user.confirmed_at |> is_nil() |> assert()
+      user.password |> is_nil() |> assert()
     end
   end
 
@@ -91,18 +92,23 @@ defmodule Whirl.AccountsTest do
     test "validates the authenticated_at time" do
       now = DateTime.utc_now()
 
-      assert Accounts.sudo_mode?(%User{authenticated_at: DateTime.utc_now()})
-      assert Accounts.sudo_mode?(%User{authenticated_at: DateTime.add(now, -19, :minute)})
-      refute Accounts.sudo_mode?(%User{authenticated_at: DateTime.add(now, -21, :minute)})
+      %User{authenticated_at: DateTime.utc_now()} |> Accounts.sudo_mode?() |> assert()
+
+      %User{authenticated_at: DateTime.add(now, -19, :minute)}
+      |> Accounts.sudo_mode?()
+      |> assert()
+
+      %User{authenticated_at: DateTime.add(now, -21, :minute)}
+      |> Accounts.sudo_mode?()
+      |> refute()
 
       # minute override
-      refute Accounts.sudo_mode?(
-               %User{authenticated_at: DateTime.add(now, -11, :minute)},
-               -10
-             )
+      %User{authenticated_at: DateTime.add(now, -11, :minute)}
+      |> Accounts.sudo_mode?(-10)
+      |> refute()
 
       # not authenticated
-      refute Accounts.sudo_mode?(%User{})
+      %User{} |> Accounts.sudo_mode?() |> refute()
     end
   end
 
@@ -150,26 +156,26 @@ defmodule Whirl.AccountsTest do
       changed_user = Repo.get!(User, user.id)
       assert changed_user.email != user.email
       assert changed_user.email == email
-      refute Repo.get_by(UserToken, user_id: user.id)
+      UserToken |> Repo.get_by(user_id: user.id) |> refute()
     end
 
     test "does not update email with invalid token", %{user: user} do
       assert Accounts.update_user_email(user, "oops") == :error
       assert Repo.get!(User, user.id).email == user.email
-      assert Repo.get_by(UserToken, user_id: user.id)
+      UserToken |> Repo.get_by(user_id: user.id) |> assert()
     end
 
     test "does not update email if user email changed", %{user: user, token: token} do
       assert Accounts.update_user_email(%{user | email: "current@example.com"}, token) == :error
       assert Repo.get!(User, user.id).email == user.email
-      assert Repo.get_by(UserToken, user_id: user.id)
+      UserToken |> Repo.get_by(user_id: user.id) |> assert()
     end
 
     test "does not update email if token expired", %{user: user, token: token} do
       {1, nil} = Repo.update_all(UserToken, set: [inserted_at: ~N[2020-01-01 00:00:00]])
       assert Accounts.update_user_email(user, token) == :error
       assert Repo.get!(User, user.id).email == user.email
-      assert Repo.get_by(UserToken, user_id: user.id)
+      UserToken |> Repo.get_by(user_id: user.id) |> assert()
     end
   end
 
@@ -191,7 +197,7 @@ defmodule Whirl.AccountsTest do
 
       assert changeset.valid?
       assert get_change(changeset, :password) == "new valid password"
-      assert is_nil(get_change(changeset, :hashed_password))
+      changeset |> get_change(:hashed_password) |> is_nil() |> assert()
     end
   end
 
@@ -229,8 +235,8 @@ defmodule Whirl.AccountsTest do
         })
 
       assert expired_tokens == []
-      assert is_nil(user.password)
-      assert Accounts.get_user_by_email_and_password(user.email, "new valid password")
+      user.password |> is_nil() |> assert()
+      user.email |> Accounts.get_user_by_email_and_password("new valid password") |> assert()
     end
 
     test "deletes all tokens for the given user", %{user: user} do
@@ -241,7 +247,7 @@ defmodule Whirl.AccountsTest do
           password: "new valid password"
         })
 
-      refute Repo.get_by(UserToken, user_id: user.id)
+      UserToken |> Repo.get_by(user_id: user.id) |> refute()
     end
   end
 
@@ -279,12 +285,12 @@ defmodule Whirl.AccountsTest do
     end
 
     test "does not return user for invalid token" do
-      refute Accounts.get_user_by_session_token("oops")
+      "oops" |> Accounts.get_user_by_session_token() |> refute()
     end
 
     test "does not return user for expired token", %{token: token} do
       {1, nil} = Repo.update_all(UserToken, set: [inserted_at: ~N[2020-01-01 00:00:00]])
-      refute Accounts.get_user_by_session_token(token)
+      token |> Accounts.get_user_by_session_token() |> refute()
     end
   end
 
@@ -301,12 +307,12 @@ defmodule Whirl.AccountsTest do
     end
 
     test "does not return user for invalid token" do
-      refute Accounts.get_user_by_magic_link_token("oops")
+      "oops" |> Accounts.get_user_by_magic_link_token() |> refute()
     end
 
     test "does not return user for expired token", %{token: token} do
       {1, nil} = Repo.update_all(UserToken, set: [inserted_at: ~N[2020-01-01 00:00:00]])
-      refute Accounts.get_user_by_magic_link_token(token)
+      token |> Accounts.get_user_by_magic_link_token() |> refute()
     end
   end
 
@@ -347,7 +353,7 @@ defmodule Whirl.AccountsTest do
       user = user_fixture()
       token = Accounts.generate_user_session_token(user)
       assert Accounts.delete_user_session_token(token) == :ok
-      refute Accounts.get_user_by_session_token(token)
+      token |> Accounts.get_user_by_session_token() |> refute()
     end
   end
 

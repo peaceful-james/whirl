@@ -1,12 +1,12 @@
 defmodule WhirlWeb.UserAuthTest do
   use WhirlWeb.ConnCase, async: true
 
+  import Whirl.AccountsFixtures
+
   alias Phoenix.LiveView
   alias Whirl.Accounts
   alias Whirl.Accounts.Scope
   alias WhirlWeb.UserAuth
-
-  import Whirl.AccountsFixtures
 
   @remember_me_cookie "_whirl_web_user_remember_me"
 
@@ -25,12 +25,12 @@ defmodule WhirlWeb.UserAuthTest do
       assert token = get_session(conn, :user_token)
       assert get_session(conn, :live_socket_id) == "users_sessions:#{Base.url_encode64(token)}"
       assert redirected_to(conn) == ~p"/"
-      assert Accounts.get_user_by_session_token(token)
+      token |> Accounts.get_user_by_session_token() |> assert()
     end
 
     test "clears everything previously stored in the session", %{conn: conn, user: user} do
       conn = conn |> put_session(:to_be_removed, "value") |> UserAuth.log_in_user(user)
-      refute get_session(conn, :to_be_removed)
+      conn |> get_session(:to_be_removed) |> refute()
     end
 
     test "redirects to the configured path", %{conn: conn, user: user} do
@@ -72,7 +72,7 @@ defmodule WhirlWeb.UserAuthTest do
       # the conn is already logged in and has the remeber_me cookie set,
       # now we log in again and even without explicitly setting remember_me,
       # the cookie should be set again
-      conn = conn |> UserAuth.log_in_user(user, %{})
+      conn = UserAuth.log_in_user(conn, user, %{})
       assert %{value: signed_token, max_age: max_age} = conn.resp_cookies[@remember_me_cookie]
       assert signed_token != get_session(conn, :user_token)
       assert max_age == 5_184_000
@@ -91,11 +91,11 @@ defmodule WhirlWeb.UserAuthTest do
         |> fetch_cookies()
         |> UserAuth.log_out_user()
 
-      refute get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> refute()
       refute conn.cookies[@remember_me_cookie]
       assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
       assert redirected_to(conn) == ~p"/"
-      refute Accounts.get_user_by_session_token(user_token)
+      user_token |> Accounts.get_user_by_session_token() |> refute()
     end
 
     test "broadcasts to the given live_socket_id", %{conn: conn} do
@@ -111,7 +111,7 @@ defmodule WhirlWeb.UserAuthTest do
 
     test "works even if user is already logged out", %{conn: conn} do
       conn = conn |> fetch_cookies() |> UserAuth.log_out_user()
-      refute get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> refute()
       assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
       assert redirected_to(conn) == ~p"/"
     end
@@ -149,7 +149,7 @@ defmodule WhirlWeb.UserAuthTest do
     test "does not authenticate if data is missing", %{conn: conn, user: user} do
       _ = Accounts.generate_user_session_token(user)
       conn = UserAuth.fetch_current_scope_for_user(conn, [])
-      refute get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> refute()
       refute conn.assigns.current_scope
     end
   end
@@ -180,7 +180,7 @@ defmodule WhirlWeb.UserAuthTest do
     end
 
     test "assigns nil to current_scope assign if there isn't a user_token", %{conn: conn} do
-      session = conn |> get_session()
+      session = get_session(conn)
 
       {:cont, updated_socket} =
         UserAuth.on_mount(:mount_current_scope, %{}, session, %LiveView.Socket{})
@@ -214,7 +214,7 @@ defmodule WhirlWeb.UserAuthTest do
     end
 
     test "redirects to login page if there isn't a user_token", %{conn: conn} do
-      session = conn |> get_session()
+      session = get_session(conn)
 
       socket = %LiveView.Socket{
         endpoint: WhirlWeb.Endpoint,
@@ -241,7 +241,7 @@ defmodule WhirlWeb.UserAuthTest do
     end
 
     test "redirects when authentication is too old", %{user: user} do
-      eleven_minutes_ago = DateTime.utc_now() |> DateTime.add(-11, :minute)
+      eleven_minutes_ago = DateTime.add(DateTime.utc_now(), -11, :minute)
 
       socket = %LiveView.Socket{
         endpoint: AuthAppWeb.Endpoint,
@@ -295,7 +295,7 @@ defmodule WhirlWeb.UserAuthTest do
         |> UserAuth.require_authenticated_user([])
 
       assert halted_conn.halted
-      refute get_session(halted_conn, :user_return_to)
+      halted_conn |> get_session(:user_return_to) |> refute()
     end
 
     test "does not redirect if user is authenticated", %{conn: conn, user: user} do

@@ -50,14 +50,15 @@ defmodule WhirlWeb.UserLive.ConfirmationTest do
 
       assert Accounts.get_user!(user.id).confirmed_at
       # we are logged in now
-      assert get_session(conn, :user_token)
+      conn |> get_session(:user_token) |> assert()
       assert redirected_to(conn) == ~p"/"
 
       # log out, new conn
       conn = build_conn()
 
       {:ok, _lv, html} =
-        live(conn, ~p"/users/log-in/#{token}")
+        conn
+        |> live(~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
       assert html =~ "Magic link is invalid or it has expired"
@@ -88,7 +89,8 @@ defmodule WhirlWeb.UserLive.ConfirmationTest do
       conn = build_conn()
 
       {:ok, _lv, html} =
-        live(conn, ~p"/users/log-in/#{token}")
+        conn
+        |> live(~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
       assert html =~ "Magic link is invalid or it has expired"
@@ -96,7 +98,8 @@ defmodule WhirlWeb.UserLive.ConfirmationTest do
 
     test "raises error for invalid token", %{conn: conn} do
       {:ok, _lv, html} =
-        live(conn, ~p"/users/log-in/invalid-token")
+        conn
+        |> live(~p"/users/log-in/invalid-token")
         |> follow_redirect(conn, ~p"/users/log-in")
 
       assert html =~ "Magic link is invalid or it has expired"

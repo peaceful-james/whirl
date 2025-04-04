@@ -1,8 +1,9 @@
 defmodule Whirl.Accounts.UserNotifier do
+  @moduledoc false
   import Swoosh.Email
 
-  alias Whirl.Mailer
   alias Whirl.Accounts.User
+  alias Whirl.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do

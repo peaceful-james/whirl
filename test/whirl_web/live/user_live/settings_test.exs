@@ -1,9 +1,10 @@
 defmodule WhirlWeb.UserLive.SettingsTest do
   use WhirlWeb.ConnCase, async: true
 
-  alias Whirl.Accounts
   import Phoenix.LiveViewTest
   import Whirl.AccountsFixtures
+
+  alias Whirl.Accounts
 
   describe "Settings page" do
     test "renders settings page", %{conn: conn} do
@@ -56,7 +57,7 @@ defmodule WhirlWeb.UserLive.SettingsTest do
         |> render_submit()
 
       assert result =~ "A link to confirm your email"
-      assert Accounts.get_user_by_email(user.email)
+      user.email |> Accounts.get_user_by_email() |> assert()
     end
 
     test "renders errors with invalid data (phx-change)", %{conn: conn} do
@@ -120,7 +121,7 @@ defmodule WhirlWeb.UserLive.SettingsTest do
       assert Phoenix.Flash.get(new_password_conn.assigns.flash, :info) =~
                "Password updated successfully"
 
-      assert Accounts.get_user_by_email_and_password(user.email, new_password)
+      user.email |> Accounts.get_user_by_email_and_password(new_password) |> assert()
     end
 
     test "renders errors with invalid data (phx-change)", %{conn: conn} do
@@ -180,8 +181,8 @@ defmodule WhirlWeb.UserLive.SettingsTest do
       assert path == ~p"/users/settings"
       assert %{"info" => message} = flash
       assert message == "Email changed successfully."
-      refute Accounts.get_user_by_email(user.email)
-      assert Accounts.get_user_by_email(email)
+      user.email |> Accounts.get_user_by_email() |> refute()
+      email |> Accounts.get_user_by_email() |> assert()
 
       # use confirm token again
       {:error, redirect} = live(conn, ~p"/users/settings/confirm-email/#{token}")
@@ -197,7 +198,7 @@ defmodule WhirlWeb.UserLive.SettingsTest do
       assert path == ~p"/users/settings"
       assert %{"error" => message} = flash
       assert message == "Email change link is invalid or it has expired."
-      assert Accounts.get_user_by_email(user.email)
+      user.email |> Accounts.get_user_by_email() |> assert()
     end
 
     test "redirects if user is not logged in", %{token: token} do

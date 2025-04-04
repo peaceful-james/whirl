@@ -18,7 +18,7 @@ defmodule Whirl.Accounts.Scope do
 
   alias Whirl.Accounts.User
 
-  defstruct user: nil
+  defstruct [:user]
 
   @doc """
   Creates a scope for the given user.

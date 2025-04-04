@@ -1,5 +1,7 @@
 defmodule Whirl.Accounts.User do
+  @moduledoc false
   use Ecto.Schema
+
   import Ecto.Changeset
 
   alias Whirl.Utils.HashingUtils
@@ -114,7 +116,7 @@ defmodule Whirl.Accounts.User do
   Confirms the account by setting `confirmed_at`.
   """
   def confirm_changeset(user) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.truncate(DateTime.utc_now(), :second)
     change(user, confirmed_at: now)
   end
 
@@ -124,7 +126,7 @@ defmodule Whirl.Accounts.User do
   If there is no user or the user doesn't have a password, we call
   `HashingUtils.no_user_verify/0` to avoid timing attacks.
   """
-  def valid_password?(%Whirl.Accounts.User{hashed_password: hashed_password}, password)
+  def valid_password?(%__MODULE__{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
     HashingUtils.verify_pass(password, hashed_password)
   end

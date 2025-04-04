@@ -4,9 +4,11 @@ defmodule Whirl.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias Whirl.Repo
 
-  alias Whirl.Accounts.{User, UserToken, UserNotifier}
+  alias Whirl.Accounts.User
+  alias Whirl.Accounts.UserNotifier
+  alias Whirl.Accounts.UserToken
+  alias Whirl.Repo
 
   ## Database getters
 
@@ -91,7 +93,7 @@ defmodule Whirl.Accounts do
   def sudo_mode?(user, minutes \\ -20)
 
   def sudo_mode?(%User{authenticated_at: ts}, minutes) when is_struct(ts, DateTime) do
-    DateTime.after?(ts, DateTime.utc_now() |> DateTime.add(minutes, :minute))
+    DateTime.after?(ts, DateTime.add(DateTime.utc_now(), minutes, :minute))
   end
 
   def sudo_mode?(_user, _minutes), do: false
@@ -121,7 +123,7 @@ defmodule Whirl.Accounts do
 
     with {:ok, query} <- UserToken.verify_change_email_token_query(token, context),
          %UserToken{sent_to: email} <- Repo.one(query),
-         {:ok, _} <- Repo.transaction(user_email_multi(user, email, context)) do
+         {:ok, _} <- user |> user_email_multi(email, context) |> Repo.transaction() do
       :ok
     else
       _ -> :error
@@ -283,7 +285,7 @@ defmodule Whirl.Accounts do
   Deletes the signed token with the given context.
   """
   def delete_user_session_token(token) do
-    Repo.delete_all(UserToken.by_token_and_context_query(token, "session"))
+    token |> UserToken.by_token_and_context_query("session") |> Repo.delete_all()
     :ok
   end
 

@@ -1,4 +1,5 @@
 defmodule WhirlWeb.UserLive.Registration do
+  @moduledoc false
   use WhirlWeb, :live_view
 
   alias Whirl.Accounts
@@ -12,7 +13,7 @@ defmodule WhirlWeb.UserLive.Registration do
           Register for an account
           <:subtitle>
             Already registered?
-            <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
+            <.link navigate={~p"/users/log-in"} class="text-brand font-semibold hover:underline">
               Log in
             </.link>
             to your account now.

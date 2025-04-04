@@ -1,7 +1,10 @@
 defmodule Whirl.Accounts.UserToken do
+  @moduledoc false
   use Ecto.Schema
+
   import Ecto.Query
-  alias Whirl.Accounts.UserToken
+
+  alias __MODULE__
 
   @hash_algorithm :sha256
   @rand_size 32
