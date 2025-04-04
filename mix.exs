@@ -33,6 +33,7 @@ defmodule Whirl.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:argon2_elixir, "~> 4.0"},
       {:bcrypt_elixir, "~> 3.0"},
       {:green, ">= 0.1.4", only: :dev},
       {:tailwind_formatter, "~> 0.4.2", only: :dev, runtime: false},

@@ -21,6 +21,7 @@ config :whirl, :scopes,
   ]
 
 config :whirl,
+  env: config_env(),
   ecto_repos: [Whirl.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 

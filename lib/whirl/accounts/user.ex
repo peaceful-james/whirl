@@ -1,6 +1,9 @@
 defmodule Whirl.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+
+  alias Whirl.Utils.HashingUtils
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
@@ -97,11 +100,10 @@ defmodule Whirl.Accounts.User do
 
     if hash_password? && password && changeset.valid? do
       changeset
-      # If using Bcrypt, then further validate it is at most 72 bytes long
-      |> validate_length(:password, max: 72, count: :bytes)
+      |> HashingUtils.maybe_validate_max_length_of_hashable_field(:password)
       # Hashing could be done with `Ecto.Changeset.prepare_changes/2`, but that
       # would keep the database transaction open longer and hurt performance.
-      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
+      |> put_change(:hashed_password, HashingUtils.hash_pwd_salt(password))
       |> delete_change(:password)
     else
       changeset
@@ -120,15 +122,15 @@ defmodule Whirl.Accounts.User do
   Verifies the password.
 
   If there is no user or the user doesn't have a password, we call
-  `Bcrypt.no_user_verify/0` to avoid timing attacks.
+  `HashingUtils.no_user_verify/0` to avoid timing attacks.
   """
   def valid_password?(%Whirl.Accounts.User{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
-    Bcrypt.verify_pass(password, hashed_password)
+    HashingUtils.verify_pass(password, hashed_password)
   end
 
   def valid_password?(_, _) do
-    Bcrypt.no_user_verify()
+    HashingUtils.no_user_verify()
     false
   end
 end
