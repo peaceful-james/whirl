@@ -3,6 +3,9 @@ defmodule Whirl.Utils.HashingUtils do
   Abstract the exact choice of hashing lib
 
   This allows using different libs in, e.g. dev vs prod.
+
+  The Bcrypt lib is lighter and faster.
+  The Argon2 lib is more secure but heavier/slower.
   """
 
   alias Ecto.Changeset
