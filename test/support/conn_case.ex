@@ -20,14 +20,15 @@ defmodule WhirlWeb.ConnCase do
   using do
     quote do
       # The default endpoint for testing
-      @endpoint WhirlWeb.Endpoint
-
       use WhirlWeb, :verified_routes
+
+      import Phoenix.ConnTest
 
       # Import conveniences for testing with connections
       import Plug.Conn
-      import Phoenix.ConnTest
       import WhirlWeb.ConnCase
+
+      @endpoint WhirlWeb.Endpoint
     end
   end
 

@@ -1,9 +1,9 @@
 defmodule WhirlWeb.ErrorHTMLTest do
   use WhirlWeb.ConnCase, async: true
 
-  # Bring render_to_string/4 for testing custom views
   import Phoenix.Template, only: [render_to_string: 4]
 
+  # Bring render_to_string/4 for testing custom views
   test "renders 404.html" do
     assert render_to_string(WhirlWeb.ErrorHTML, "404", "html", []) == "Not Found"
   end

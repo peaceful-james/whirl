@@ -18,17 +18,17 @@ defmodule Whirl.DataCase do
 
   using do
     quote do
-      alias Whirl.Repo
-
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Whirl.DataCase
+
+      alias Whirl.Repo
     end
   end
 
   setup tags do
-    Whirl.DataCase.setup_sandbox(tags)
+    __MODULE__.setup_sandbox(tags)
     :ok
   end
 
