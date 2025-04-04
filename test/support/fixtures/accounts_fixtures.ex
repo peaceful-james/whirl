@@ -64,8 +64,8 @@ defmodule Whirl.AccountsFixtures do
 
   def override_token_inserted_at(token, inserted_at) when is_binary(token) do
     Whirl.Repo.update_all(
-      from(t in Accounts.UserToken,
-        where: t.token == ^token
+      from(user_token in Accounts.UserToken,
+        where: user_token.token == ^token
       ),
       set: [inserted_at: inserted_at]
     )

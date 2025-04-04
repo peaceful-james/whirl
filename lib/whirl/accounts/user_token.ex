@@ -165,17 +165,18 @@ defmodule Whirl.Accounts.UserToken do
   Gets all tokens for the given user for the given contexts.
   """
   def by_user_and_contexts_query(user, :all) do
-    from t in UserToken, where: t.user_id == ^user.id
+    from user_token in UserToken, where: user_token.user_id == ^user.id
   end
 
   def by_user_and_contexts_query(user, [_ | _] = contexts) do
-    from t in UserToken, where: t.user_id == ^user.id and t.context in ^contexts
+    from user_token in UserToken,
+      where: user_token.user_id == ^user.id and user_token.context in ^contexts
   end
 
   @doc """
   Deletes a list of tokens.
   """
   def delete_all_query(tokens) do
-    from t in UserToken, where: t.id in ^Enum.map(tokens, & &1.id)
+    from user_token in UserToken, where: user_token.id in ^Enum.map(tokens, & &1.id)
   end
 end
