@@ -80,7 +80,7 @@ defmodule Whirl.AccountsTest do
 
     test "registers users without password" do
       email = unique_user_email()
-      {:ok, user} = email: email |> valid_user_attributes() |> Accounts.register_user()
+      {:ok, user} = [email: email] |> valid_user_attributes() |> Accounts.register_user()
       assert user.email == email
       user.hashed_password |> is_nil() |> assert()
       user.confirmed_at |> is_nil() |> assert()
