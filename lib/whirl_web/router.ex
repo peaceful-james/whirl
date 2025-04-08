@@ -61,6 +61,11 @@ defmodule WhirlWeb.Router do
 
   scope "/", WhirlWeb do
     pipe_through [:browser]
+    get "/short/:short_url", ShortUrlController, :index
+  end
+
+  scope "/", WhirlWeb do
+    pipe_through [:browser]
 
     live_session :current_user,
       on_mount: [{WhirlWeb.UserAuth, :mount_current_scope}] do

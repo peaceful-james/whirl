@@ -17,13 +17,13 @@ defmodule WhirlWeb.ShortUrlLive.Index do
         </:actions>
       </.header>
 
-      <.table
-        id="short_url"
-        rows={@streams.short_url_collection}
-        row_click={fn {_id, short_url} -> JS.navigate(~p"/short_url/#{short_url}") end}
-      >
+      <.table id="short_url" rows={@streams.short_url_collection}>
         <:col :let={{_id, short_url}} label="Long url">{short_url.long_url}</:col>
-        <:col :let={{_id, short_url}} label="Short url">{short_url.short_url}</:col>
+        <:col :let={{_id, short_url}} label="Short url">
+          <.link href={~p"/short/#{short_url.short_url}" |> IO.inspect(label: "WTF")}>
+            {~p"/short/#{short_url.short_url}"}
+          </.link>
+        </:col>
         <:action :let={{_id, short_url}}>
           <div class="sr-only">
             <.link navigate={~p"/short_url/#{short_url}"}>Show</.link>

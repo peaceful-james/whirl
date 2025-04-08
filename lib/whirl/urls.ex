@@ -62,6 +62,10 @@ defmodule Whirl.Urls do
     Repo.get_by!(ShortUrl, id: id, user_id: scope.user.id)
   end
 
+  def get_short_url_by(get_by) do
+    Repo.get_by(ShortUrl, get_by)
+  end
+
   @doc """
   Creates a short_url.
 
@@ -143,5 +147,12 @@ defmodule Whirl.Urls do
     true = short_url.user_id == scope.user.id
 
     ShortUrl.changeset(short_url, attrs, scope)
+  end
+
+  @doc """
+  Generate human-friendly short URL
+  """
+  def generate_short_url do
+    "short-" <> (20 |> :crypto.strong_rand_bytes() |> Base.encode32())
   end
 end

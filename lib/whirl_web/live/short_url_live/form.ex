@@ -16,7 +16,6 @@ defmodule WhirlWeb.ShortUrlLive.Form do
 
       <.form for={@form} id="short_url-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:long_url]} type="text" label="Long url" />
-        <.input field={@form[:short_url]} type="text" label="Short url" />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Short url</.button>
           <.button navigate={return_path(@current_scope, @return_to, @short_url)}>Cancel</.button>
@@ -99,6 +98,8 @@ defmodule WhirlWeb.ShortUrlLive.Form do
   defp save_short_url(socket, :new, short_url_params) do
     case Urls.create_short_url(socket.assigns.current_scope, short_url_params) do
       {:ok, short_url} ->
+        IO.inspect(short_url, label: "short_url")
+
         {:noreply,
          socket
          |> put_flash(:info, "Short url created successfully")
