@@ -4,10 +4,10 @@ defmodule Whirl.Urls do
   """
 
   import Ecto.Query, warn: false
-  alias Whirl.Repo
 
-  alias Whirl.Urls.ShortUrl
   alias Whirl.Accounts.Scope
+  alias Whirl.Repo
+  alias Whirl.Urls.ShortUrl
 
   @doc """
   Subscribes to scoped notifications about any short_url changes.
@@ -75,7 +75,7 @@ defmodule Whirl.Urls do
 
   """
   def create_short_url(%Scope{} = scope, attrs \\ %{}) do
-    with {:ok, short_url = %ShortUrl{}} <-
+    with {:ok, %ShortUrl{} = short_url} <-
            %ShortUrl{}
            |> ShortUrl.changeset(attrs, scope)
            |> Repo.insert() do
@@ -99,7 +99,7 @@ defmodule Whirl.Urls do
   def update_short_url(%Scope{} = scope, %ShortUrl{} = short_url, attrs) do
     true = short_url.user_id == scope.user.id
 
-    with {:ok, short_url = %ShortUrl{}} <-
+    with {:ok, %ShortUrl{} = short_url} <-
            short_url
            |> ShortUrl.changeset(attrs, scope)
            |> Repo.update() do
@@ -123,7 +123,7 @@ defmodule Whirl.Urls do
   def delete_short_url(%Scope{} = scope, %ShortUrl{} = short_url) do
     true = short_url.user_id == scope.user.id
 
-    with {:ok, short_url = %ShortUrl{}} <-
+    with {:ok, %ShortUrl{} = short_url} <-
            Repo.delete(short_url) do
       broadcast(scope, {:deleted, short_url})
       {:ok, short_url}

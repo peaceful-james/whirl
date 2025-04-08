@@ -4,11 +4,9 @@ defmodule Whirl.UrlsTest do
   alias Whirl.Urls
 
   describe "short_url" do
-    alias Whirl.Urls.ShortUrl
-
     import Whirl.AccountsFixtures, only: [user_scope_fixture: 0]
     import Whirl.UrlsFixtures
-
+    alias Whirl.Urls.ShortUrl
     @invalid_attrs %{long_url: nil, short_url: nil}
 
     test "list_short_url/1 returns all scoped short_url" do
@@ -48,7 +46,9 @@ defmodule Whirl.UrlsTest do
       short_url = short_url_fixture(scope)
       update_attrs = %{long_url: "some updated long_url", short_url: "some updated short_url"}
 
-      assert {:ok, %ShortUrl{} = short_url} = Urls.update_short_url(scope, short_url, update_attrs)
+      assert {:ok, %ShortUrl{} = short_url} =
+               Urls.update_short_url(scope, short_url, update_attrs)
+
       assert short_url.long_url == "some updated long_url"
       assert short_url.short_url == "some updated short_url"
     end

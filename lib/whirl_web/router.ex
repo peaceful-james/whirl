@@ -20,7 +20,7 @@ defmodule WhirlWeb.Router do
   scope "/", WhirlWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    # get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
@@ -72,9 +72,11 @@ defmodule WhirlWeb.Router do
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
 
-    live "/short_url", ShortUrlLive.Index, :index
-    live "/", ShortUrlLive.Form, :new
-    live "/short_url/:id", ShortUrlLive.Show, :show
-    live "/short_url/:id/edit", ShortUrlLive.Form, :edit
+    live_session :urls, on_mount: [{WhirlWeb.UserAuth, :require_authenticated}] do
+      live "/short_url", ShortUrlLive.Index, :index
+      live "/", ShortUrlLive.Form, :new
+      live "/short_url/:id", ShortUrlLive.Show, :show
+      live "/short_url/:id/edit", ShortUrlLive.Form, :edit
+    end
   end
 end

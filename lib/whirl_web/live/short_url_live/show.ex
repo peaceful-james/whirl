@@ -1,4 +1,5 @@
 defmodule WhirlWeb.ShortUrlLive.Show do
+  @moduledoc false
   use WhirlWeb, :live_view
 
   alias Whirl.Urls

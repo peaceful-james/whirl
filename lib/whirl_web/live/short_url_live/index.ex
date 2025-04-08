@@ -1,4 +1,5 @@
 defmodule WhirlWeb.ShortUrlLive.Index do
+  @moduledoc false
   use WhirlWeb, :live_view
 
   alias Whirl.Urls
@@ -63,6 +64,9 @@ defmodule WhirlWeb.ShortUrlLive.Index do
   @impl true
   def handle_info({type, %Whirl.Urls.ShortUrl{}}, socket)
       when type in [:created, :updated, :deleted] do
-    {:noreply, stream(socket, :short_url_collection, Urls.list_short_url(socket.assigns.current_scope), reset: true)}
+    {:noreply,
+     stream(socket, :short_url_collection, Urls.list_short_url(socket.assigns.current_scope),
+       reset: true
+     )}
   end
 end

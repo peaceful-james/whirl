@@ -82,7 +82,7 @@ defmodule WhirlWeb.ShortUrlLiveTest do
       {:ok, index_live, _html} = live(conn, ~p"/short_url")
 
       assert index_live |> element("#short_url-#{short_url.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#short_url-#{short_url.id}")
+      index_live |> has_element?("#short_url-#{short_url.id}") |> refute()
     end
   end
 

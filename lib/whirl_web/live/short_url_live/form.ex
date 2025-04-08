@@ -1,4 +1,5 @@
 defmodule WhirlWeb.ShortUrlLive.Form do
+  @moduledoc false
   use WhirlWeb, :live_view
 
   alias Whirl.Urls
@@ -42,7 +43,10 @@ defmodule WhirlWeb.ShortUrlLive.Form do
     socket
     |> assign(:page_title, "Edit Short url")
     |> assign(:short_url, short_url)
-    |> assign(:form, to_form(Urls.change_short_url(socket.assigns.current_scope, short_url)))
+    |> assign(
+      :form,
+      socket.assigns.current_scope |> Urls.change_short_url(short_url) |> to_form()
+    )
   end
 
   defp apply_action(socket, :new, _params) do
@@ -51,12 +55,21 @@ defmodule WhirlWeb.ShortUrlLive.Form do
     socket
     |> assign(:page_title, "New Short url")
     |> assign(:short_url, short_url)
-    |> assign(:form, to_form(Urls.change_short_url(socket.assigns.current_scope, short_url)))
+    |> assign(
+      :form,
+      socket.assigns.current_scope |> Urls.change_short_url(short_url) |> to_form()
+    )
   end
 
   @impl true
   def handle_event("validate", %{"short_url" => short_url_params}, socket) do
-    changeset = Urls.change_short_url(socket.assigns.current_scope, socket.assigns.short_url, short_url_params)
+    changeset =
+      Urls.change_short_url(
+        socket.assigns.current_scope,
+        socket.assigns.short_url,
+        short_url_params
+      )
+
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -65,7 +78,11 @@ defmodule WhirlWeb.ShortUrlLive.Form do
   end
 
   defp save_short_url(socket, :edit, short_url_params) do
-    case Urls.update_short_url(socket.assigns.current_scope, socket.assigns.short_url, short_url_params) do
+    case Urls.update_short_url(
+           socket.assigns.current_scope,
+           socket.assigns.short_url,
+           short_url_params
+         ) do
       {:ok, short_url} ->
         {:noreply,
          socket
