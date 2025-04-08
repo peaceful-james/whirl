@@ -73,7 +73,7 @@ defmodule WhirlWeb.Router do
     delete "/users/log-out", UserSessionController, :delete
 
     live "/short_url", ShortUrlLive.Index, :index
-    live "/short_url/new", ShortUrlLive.Form, :new
+    live "/", ShortUrlLive.Form, :new
     live "/short_url/:id", ShortUrlLive.Show, :show
     live "/short_url/:id/edit", ShortUrlLive.Form, :edit
   end
