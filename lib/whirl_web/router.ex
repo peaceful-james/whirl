@@ -69,6 +69,11 @@ defmodule WhirlWeb.Router do
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end
 
+    live "/axes", AxisLive.Index, :index
+    live "/axes/new", AxisLive.Form, :new
+    live "/axes/:id", AxisLive.Show, :show
+    live "/axes/:id/edit", AxisLive.Form, :edit
+
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end
