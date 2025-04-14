@@ -54,6 +54,11 @@ defmodule WhirlWeb.Router do
       on_mount: [{WhirlWeb.UserAuth, :require_authenticated}] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+
+      live "/axes", AxisLive.Index, :index
+      live "/axes/new", AxisLive.Form, :new
+      live "/axes/:id", AxisLive.Show, :show
+      live "/axes/:id/edit", AxisLive.Form, :edit
     end
 
     post "/users/update-password", UserSessionController, :update_password
@@ -68,11 +73,6 @@ defmodule WhirlWeb.Router do
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end
-
-    live "/axes", AxisLive.Index, :index
-    live "/axes/new", AxisLive.Form, :new
-    live "/axes/:id", AxisLive.Show, :show
-    live "/axes/:id/edit", AxisLive.Form, :edit
 
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
